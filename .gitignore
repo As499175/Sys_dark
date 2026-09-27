@@ -1,1 +1,18 @@
-(empty)
+# dependencies / artifacts — never commit these
+node_modules/
+.next/
+out/
+build/
+
+# env files (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+
+# misc
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+npm-debug.log*
