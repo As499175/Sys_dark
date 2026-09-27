@@ -7,6 +7,7 @@
   --color-void: #05060a;
   --color-ink: #0b0e17;
   --color-ink2: #11162a;
+  --color-ink-2: #11162a; /* alias used by components */
   --color-cyan: #00f0ff;
   --color-magenta: #ff2d95;
   --color-violet: #7c5cff;
@@ -351,6 +352,104 @@ body {
   transform: translateX(0);
 }
 
+
+/* ------------------------------------------------------------------ */
+/*  Hero + shared component styles                                     */
+/* ------------------------------------------------------------------ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-cyan);
+  color: #041014;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.6rem;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.15);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.4rem;
+  background: rgb(11 14 23 / 0.5);
+  transition: border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  box-shadow: 0 0 24px rgb(0 240 255 / 0.25);
+}
+
+/* animated hero gradient (canvas fallback layer — always rendered) */
+.hero-gradient {
+  background:
+    radial-gradient(60% 50% at 80% 20%, rgb(124 92 255 / 0.16), transparent 70%),
+    radial-gradient(50% 45% at 15% 75%, rgb(0 240 255 / 0.10), transparent 70%),
+    radial-gradient(40% 40% at 60% 90%, rgb(255 45 149 / 0.08), transparent 70%),
+    var(--color-void);
+  background-size: 200% 200%;
+  animation: hero-drift 18s ease-in-out infinite alternate;
+}
+@keyframes hero-drift {
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 100%; }
+}
+
+/* hexagon portrait ring — rotating conic neon border */
+.hex-ring {
+  background: conic-gradient(from 0deg, var(--color-cyan), var(--color-violet), var(--color-magenta), var(--color-cyan));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: spin-conic 6s linear infinite;
+  filter: blur(0.5px);
+}
+@keyframes spin-conic {
+  to { transform: rotate(360deg); }
+}
+
+/* floating HUD chips around the portrait */
+.hud-chip {
+  border: 1px solid rgb(0 240 255 / 0.25);
+  background: rgb(11 14 23 / 0.72);
+  backdrop-filter: blur(8px);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  box-shadow: 0 0 18px rgb(0 240 255 / 0.12);
+}
+@keyframes float-chip {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgb(0 240 255 / 0.5);
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2.2s ease-in-out infinite;
+}
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(8px); opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-gradient,
+  .hex-ring,
+  .animate-bounce-slow {
+    animation: none;
+  }
+}
+
 /* God Mode theme (konami easter egg) */
 .god-mode {
   --color-cyan: #ffd166;
@@ -361,6 +460,11 @@ body {
 .screen-glitch {
   animation: shake 0.45s linear 2;
   filter: hue-rotate(90deg) invert(0.08);
+}
+
+/* konami easter-egg one-shot shake (pairs with the overlay in page.tsx) */
+.konami-glitch {
+  animation: shake 0.45s linear 1;
 }
 
 /* ------------------------------------------------------------------ */

@@ -18,9 +18,12 @@ const LINKS = [
 
 interface NavbarProps {
   onOpenPalette: () => void;
+  /** EN ⇄ বাং toggle for the hero tagline */
+  langBn: boolean;
+  onToggleLang: () => void;
 }
 
-export function Navbar({ onOpenPalette }: NavbarProps) {
+export function Navbar({ onOpenPalette, langBn, onToggleLang }: NavbarProps) {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -109,6 +112,17 @@ export function Navbar({ onOpenPalette }: NavbarProps) {
               <span className="relative h-2 w-2 rounded-full bg-ok animate-pulse-dot" aria-hidden="true" />
               STATUS: {profile.status}
             </span>
+
+            {/* EN ⇄ বাং — hero tagline language toggle */}
+            <button
+              type="button"
+              onClick={onToggleLang}
+              className="hidden items-center gap-1.5 rounded-full border border-white/10 bg-ink px-3 py-1.5 font-mono text-[0.62rem] tracking-widest text-muted transition-colors hover:border-cyan/50 hover:text-cyan md:inline-flex"
+              aria-label="Toggle hero tagline language between English and Bangla"
+              aria-pressed={langBn}
+            >
+              EN <span className="text-cyan">⇄</span> বাং
+            </button>
 
             {/* Command palette hint */}
             <button

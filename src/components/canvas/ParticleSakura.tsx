@@ -99,7 +99,6 @@ function Streaks() {
     <group ref={group}>
       {lines.map((g, i) => (
         <line key={i}>
-          {/* @ts-expect-error three's JSX line accepts bufferGeometry child */}
           <primitive object={g} attach="geometry" />
           <lineBasicMaterial
             color={i % 2 ? "#00f0ff" : "#7c5cff"}

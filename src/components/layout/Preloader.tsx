@@ -6,12 +6,17 @@ import { AnimatePresence, motion } from "motion/react";
 const MSG = "ESTABLISHING SECURE CONNECTION…";
 const KEY = "ashiq-preloader-done";
 
+interface PreloaderProps {
+  /** fired once the boot sequence completes (or is skipped) — used to trigger the sakura burst */
+  onDone?: () => void;
+}
+
 /**
  * Preloader: mono typing → progress bar + hex counter 0x00→0xFF → sakura
  * burst hint + curtain wipe. ≤1.2s total, skippable (click/Esc), and
  * sessionStorage-guarded so it never replays on in-app navigation.
  */
-export function Preloader() {
+export function Preloader({ onDone }: PreloaderProps) {
   const [visible, setVisible] = useState(false);
   const [typed, setTyped] = useState("");
   const [progress, setProgress] = useState(0);
@@ -21,13 +26,14 @@ export function Preloader() {
     if (finished.current) return;
     finished.current = true;
     setProgress(100);
+    onDone?.();
     try {
       sessionStorage.setItem(KEY, "1");
     } catch {
       /* private mode */
     }
     window.setTimeout(() => setVisible(false), 650);
-  }, []);
+  }, [onDone]);
 
   useEffect(() => {
     let done = false;
@@ -37,12 +43,15 @@ export function Preloader() {
       done = false;
     }
     if (done || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setVisible(true);
 
     const DURATION = 1100; // keep the whole thing ≤1.2s
-    const start = performance.now();
+    let start = 0;
     let raf = 0;
     const tick = (now: number) => {
+      if (!start) {
+        start = now;
+        setVisible(true); // show on first frame — avoids a synchronous setState in the effect body
+      }
       const p = Math.min((now - start) / DURATION, 1);
       setProgress(Math.round(p * 100));
       setTyped(MSG.slice(0, Math.floor(p * MSG.length * 1.4)));
@@ -78,7 +87,7 @@ export function Preloader() {
             {typed}
             <span className="animate-blink">▊</span>
           </p>
-          <div className="hud-frame relative mt-6 h-1 w-64 overflow-hidden bg-ink2">
+          <div className="hud-frame relative mt-6 h-1 w-64 overflow-hidden bg-ink-2">
             <div
               className="h-full bg-gradient-to-r from-cyan via-violet to-magenta shadow-glow-cyan transition-[width] duration-100"
               style={{ width: `${progress}%` }}

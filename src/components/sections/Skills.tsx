@@ -100,7 +100,7 @@ function ProgressColumn({ group, active }: { group: SkillGroup; active: boolean 
                 {active ? s.level : 0}%
               </span>
             </div>
-            <div className="mt-1 h-1 overflow-hidden rounded-full bg-ink2" role="progressbar" aria-valuenow={s.level} aria-valuemin={0} aria-valuemax={100} aria-label={`${s.name} proficiency`}>
+            <div className="mt-1 h-1 overflow-hidden rounded-full bg-ink-2" role="progressbar" aria-valuenow={s.level} aria-valuemin={0} aria-valuemax={100} aria-label={`${s.name} proficiency`}>
               <div
                 className="h-full rounded-full"
                 style={{

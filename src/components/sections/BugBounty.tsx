@@ -75,7 +75,7 @@ export function BugBounty() {
             <div className="flex flex-wrap items-center gap-y-2">
               {METHOD.map((m, i) => (
                 <span key={m} className="flex items-center">
-                  <span className="rounded-sm border border-violet/40 bg-ink2 px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-widest text-text">
+                  <span className="rounded-sm border border-violet/40 bg-ink-2 px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-widest text-text">
                     {m}
                   </span>
                   {i < METHOD.length - 1 && <span className="mx-1.5 text-cyan" aria-hidden="true">▸</span>}
@@ -93,7 +93,7 @@ export function BugBounty() {
                     tabIndex={0}
                     title={c.note}
                     aria-describedby={`owasp-${c.id}`}
-                    className="cursor-help rounded-sm border border-danger/40 bg-ink2 px-2 py-1 font-mono text-[0.62rem] text-muted transition-all hover:border-danger hover:text-danger hover:shadow-[0_0_14px_rgba(255,59,59,0.3)] focus-visible:border-danger"
+                    className="cursor-help rounded-sm border border-danger/40 bg-ink-2 px-2 py-1 font-mono text-[0.62rem] text-muted transition-all hover:border-danger hover:text-danger hover:shadow-[0_0_14px_rgba(255,59,59,0.3)] focus-visible:border-danger"
                   >
                     {c.id} {c.name}
                   </span>

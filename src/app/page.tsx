@@ -1,69 +1,167 @@
-import Image from "next/image";
+"use client";
+
+/*
+ * Home — composes all sections in the required order.
+ * Owns global interactive state: preloader, EN⇄বাং hero tagline,
+ * sakura particles toggle (command palette), and the Konami "GOD MODE" easter egg.
+ */
+
+import { useCallback, useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Preloader } from "@/components/layout/Preloader";
+import { Navbar } from "@/components/layout/Navbar";
+import { CommandPalette } from "@/components/layout/CommandPalette";
+import { Footer } from "@/components/layout/Footer";
+import { Hero } from "@/components/sections/Hero";
+import { About } from "@/components/sections/About";
+import { Skills } from "@/components/sections/Skills";
+import { Arsenal } from "@/components/sections/Arsenal";
+import { Projects } from "@/components/sections/Projects";
+import { Journey } from "@/components/sections/Journey";
+import { Achievements } from "@/components/sections/Achievements";
+import { BugBounty } from "@/components/sections/BugBounty";
+import { Certifications } from "@/components/sections/Certifications";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { Contact } from "@/components/sections/Contact";
+import { Grain } from "@/components/fx/Grain";
+import { Scanlines } from "@/components/fx/Scanlines";
+import { CursorHud } from "@/components/fx/CursorHud";
+import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
+import { cn } from "@/lib/utils";
+
+const KONAMI = [
+  "ArrowUp",
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowLeft",
+  "ArrowRight",
+  "b",
+  "a",
+];
 
 export default function Home() {
+  const reduced = usePrefersReducedMotion();
+
+  const [langBn, setLangBn] = useState(false);
+  const [sakuraOn, setSakuraOn] = useState(true);
+  const [burstKey, setBurstKey] = useState(0);
+  const [godMode, setGodMode] = useState(false);
+  const [glitching, setGlitching] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  /* Ctrl/Cmd + K → command palette */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  /* Konami code → glitch flash + sakura burst + GOD MODE theme */
+  useEffect(() => {
+    let idx = 0;
+    const onKey = (e: KeyboardEvent) => {
+      const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (key === KONAMI[idx]) {
+        idx += 1;
+        if (idx === KONAMI.length) {
+          idx = 0;
+          setGodMode((v) => !v);
+          setBurstKey((k) => k + 1);
+          setGlitching(true);
+          window.setTimeout(() => setGlitching(false), 700);
+        }
+      } else {
+        idx = key === KONAMI[0] ? 1 : 0;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const onLoaded = useCallback(() => {
+    setBurstKey((k) => k + 1); // sakura burst as the curtain lifts
+  }, []);
+
+  const toggleSakura = useCallback(() => setSakuraOn((v) => !v), []);
+  const toggleLang = useCallback(() => setLangBn((v) => !v), []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      <Preloader onDone={onLoaded} />
+
+      {/* one-shot glitch overlay for the Konami easter egg */}
+      <AnimatePresence>
+        {glitching && !reduced && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0.4, 1, 0] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, times: [0, 0.2, 0.45, 0.7, 1] }}
+            className="pointer-events-none fixed inset-0 z-[95] mix-blend-screen"
+            style={{
+              background:
+                "repeating-linear-gradient(0deg, rgba(255,45,149,.18) 0 2px, transparent 2px 4px), repeating-linear-gradient(90deg, rgba(0,240,255,.12) 0 3px, transparent 3px 6px)",
+            }}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
+      <div className={cn("relative", godMode && "god-mode", glitching && "konami-glitch")}>
+        <Grain />
+        <Scanlines />
+        <CursorHud />
+
+        <Navbar onOpenPalette={() => setPaletteOpen(true)} langBn={langBn} onToggleLang={toggleLang} />
+        <CommandPalette
+          open={paletteOpen}
+          onClose={() => setPaletteOpen(false)}
+          sakuraOn={sakuraOn}
+          onToggleSakura={toggleSakura}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+        <main id="main">
+          <Hero sakuraOn={sakuraOn} burstKey={burstKey} langBn={langBn} />
+          <About />
+          <Skills />
+          <Arsenal />
+          <Projects />
+          <Journey />
+          <Achievements />
+          <BugBounty />
+          <Certifications />
+          <Testimonials />
+          <Contact />
+        </main>
+
+        <Footer />
+
+        {/* GOD MODE toast — subtle, auto-dismisses */}
+        <AnimatePresence>
+          {godMode && (
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 40, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed bottom-6 left-1/2 z-[100] -translate-x-1/2"
+              role="status"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              <div className="hud-frame bg-ink/90 px-5 py-3 font-mono text-xs tracking-[0.2em] text-gold backdrop-blur-md">
+                ▲ GOD MODE ENGAGED — you found the cheat code. So did the best hires.
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 }

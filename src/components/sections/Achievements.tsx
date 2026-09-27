@@ -49,7 +49,7 @@ function FlipCard({ a }: { a: Achievement }) {
           <span className="font-mono text-[0.55rem] uppercase tracking-[0.3em] text-muted">tap to flip ↻</span>
         </span>
         {/* back */}
-        <span className="absolute inset-0 flex items-center border border-magenta/30 bg-ink2 p-5 text-xs leading-relaxed text-muted [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <span className="absolute inset-0 flex items-center border border-magenta/30 bg-ink-2 p-5 text-xs leading-relaxed text-muted [backface-visibility:hidden] [transform:rotateY(180deg)]">
           {a.detail}
         </span>
       </button>

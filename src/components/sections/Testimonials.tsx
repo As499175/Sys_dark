@@ -63,7 +63,7 @@ export function Testimonials() {
               onClick={() => setIndex(i)}
               className={cn(
                 "h-2 w-8 rounded-full transition-all",
-                i === index ? "bg-cyan shadow-glow-cyan" : "bg-ink2 hover:bg-muted",
+                i === index ? "bg-cyan shadow-glow-cyan" : "bg-ink-2 hover:bg-muted",
               )}
             />
           ))}
