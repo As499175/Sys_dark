@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "predev": "node scripts/clean.mjs",
-    "prebuild": "node scripts/clean.mjs",
     "dev": "next dev",
+    "dev:lan": "next dev --hostname 0.0.0.0",
+    "prebuild": "node scripts/clean.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

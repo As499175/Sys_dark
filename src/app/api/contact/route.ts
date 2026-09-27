@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { profile } from "@/data/profile";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name needs at least 2 characters").max(80),
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
 
   // Fallback: no Resend key configured → hand the browser a mailto link.
   if (!apiKey || !to) {
-    const mailto = `mailto:${to || "contact@example.com"}?subject=${encodeURIComponent(`[Portfolio] ${subject}`)}&body=${encodeURIComponent(`${message}\n\n— ${name} <${email}>`)}`;
+    const mailto = `mailto:${to || profile.email}?subject=${encodeURIComponent(`[Portfolio] ${subject}`)}&body=${encodeURIComponent(`${message}\n\n— ${name} <${email}>`)}`;
     return NextResponse.json({ ok: false, mailto });
   }
 
