@@ -10,6 +10,26 @@ Anime-cyberpunk / neon-sakura single-page portfolio built with:
 
 ---
 
+## Animation performance model (v2 — "standard & flexible")
+
+Heavy mouse-follow effects were removed from the default experience because
+they re-rendered components on every pointer frame and made loading feel slow:
+
+| Effect | Default | How to re-enable |
+|---|---|---|
+| Mouse-move hero parallax | ❌ removed | n/a (gentle CSS drift used instead) |
+| 3D tilt + glare on project cards | ❌ replaced by GPU CSS hover lift | n/a |
+| Custom HUD cursor (dot + ring) | ❌ off | `NEXT_PUBLIC_HUD_CURSOR=true` |
+| Magnetic CTA buttons | ❌ off | `NEXT_PUBLIC_MAGNETIC=true` |
+| Sakura particles + hero orb (WebGL) | ✅ desktop only, pauses when scrolled out of view, 350 petals | Ctrl/Cmd+K → "toggle sakura" |
+| Preloader | ≤1.2 s, sessionStorage-guarded, skipped on repeat visits | — |
+
+Below-the-fold sections use `content-visibility: auto`, so the browser skips
+layout/paint for them until you scroll near them. Everything still respects
+`prefers-reduced-motion`.
+
+---
+
 ## Requirements
 
 - **Node.js 20.9+** (Node 20 LTS or Node 22 recommended — Next.js 16 does not run on Node 18)

@@ -20,7 +20,7 @@ export function Section({ id, kicker, kickerJp, title, children, className }: Se
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className={cn("relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 md:py-32", className)}
+      className={cn("cv-auto relative mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 md:py-32", className)}
     >
       <motion.div
         initial={{ opacity: 0, y: 28 }}

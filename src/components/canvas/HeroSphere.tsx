@@ -3,7 +3,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 function Sphere() {
@@ -37,25 +37,39 @@ function Sphere() {
 
 /**
  * R3F hero orb. Mounted lazily with ssr:false and only on desktop /
- * motion-friendly clients (guarded by the parent). frameloop stays "always"
- * here because the orb is continuously rotating, but dpr is capped.
+ * motion-friendly clients (guarded by the parent).
+ * PERF: render loop pauses when the orb scrolls out of view.
  */
 export default function HeroSphere() {
+  const [visible, setVisible] = useState(true);
+  const wrap = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 4.4], fov: 45 }}
-      dpr={[1, 1.75]}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      style={{ position: "absolute", inset: 0 }}
-    >
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[3, 4, 5]} intensity={1.2} color="#00f0ff" />
-      <pointLight position={[-4, -2, -3]} intensity={1.4} color="#ff2d95" />
-      <Sphere />
-      <EffectComposer>
-        <Bloom intensity={0.9} luminanceThreshold={0.2} mipmapBlur />
-        <Vignette eskil={false} offset={0.2} darkness={0.85} />
-      </EffectComposer>
-    </Canvas>
+    <div ref={wrap} className="absolute inset-0">
+      <Canvas
+        camera={{ position: [0, 0, 4.4], fov: 45 }}
+        dpr={[1, 1.5]}
+        frameloop={visible ? "always" : "never"}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        style={{ position: "absolute", inset: 0 }}
+      >
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[3, 4, 5]} intensity={1.2} color="#00f0ff" />
+        <pointLight position={[-4, -2, -3]} intensity={1.4} color="#ff2d95" />
+        <Sphere />
+        <EffectComposer>
+          <Bloom intensity={0.9} luminanceThreshold={0.2} mipmapBlur />
+          <Vignette eskil={false} offset={0.2} darkness={0.85} />
+        </EffectComposer>
+      </Canvas>
+    </div>
   );
 }

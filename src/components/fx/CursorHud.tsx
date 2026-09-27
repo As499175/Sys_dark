@@ -7,15 +7,21 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
  * Custom HUD cursor: a small cyan dot + a trailing ring that lags behind.
  * Desktop, fine-pointer only; disabled for reduced motion. Native cursor is
  * kept visible for accessibility (this augments, never replaces).
+ *
+ * PERFORMANCE NOTE: the user asked to remove "hard" mouse animations from the
+ * default experience, so this is OFF by default. It can be re-enabled with the
+ * `NEXT_PUBLIC_HUD_CURSOR=true` env var (or by passing enabled={true}).
  */
-export function CursorHud() {
+export function CursorHud({ enabled: forceEnabled }: { enabled?: boolean }) {
   const reduced = usePrefersReducedMotion();
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const [enabled, setEnabled] = useState(false);
 
+  const wantHud = forceEnabled ?? process.env.NEXT_PUBLIC_HUD_CURSOR === "true";
+
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || !wantHud) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
     setEnabled(true);
 
@@ -53,7 +59,7 @@ export function CursorHud() {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(raf);
     };
-  }, [reduced]);
+  }, [reduced, wantHud]);
 
   if (!enabled) return null;
 

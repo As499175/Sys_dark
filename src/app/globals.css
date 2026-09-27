@@ -399,7 +399,7 @@ body {
     radial-gradient(40% 40% at 60% 90%, rgb(255 45 149 / 0.08), transparent 70%),
     var(--color-void);
   background-size: 200% 200%;
-  animation: hero-drift 18s ease-in-out infinite alternate;
+  animation: hero-drift 26s ease-in-out infinite alternate;
 }
 @keyframes hero-drift {
   from { background-position: 0% 0%; }
@@ -410,9 +410,12 @@ body {
 .hex-ring {
   background: conic-gradient(from 0deg, var(--color-cyan), var(--color-violet), var(--color-magenta), var(--color-cyan));
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  animation: spin-conic 6s linear infinite;
-  filter: blur(0.5px);
+  animation: spin-conic 24s linear infinite;
+  /* NOTE: removed `filter: blur(0.5px)` — blurring a rotating conic gradient
+     forced the browser to re-rasterise it every frame. */
 }
+/* Slower (24s) — the original 6s conic spin was visually "hard" and costly
+   (repaints a blurred conic gradient every frame). */
 @keyframes spin-conic {
   to { transform: rotate(360deg); }
 }
@@ -428,6 +431,23 @@ body {
 @keyframes float-chip {
   0%, 100% { translate: 0 0; }
   50% { translate: 0 -8px; }
+}
+
+/* standard GPU-composited card hover (replaces JS 3D tilt) */
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  will-change: transform;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgb(0 240 255 / 0.35);
+  box-shadow: 0 12px 40px rgb(0 240 255 / 0.12), 0 0 24px rgb(0 240 255 / 0.08);
+}
+
+/* PERF: skip layout/paint work for off-screen sections entirely */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
 }
 
 .glow-text {

@@ -1,11 +1,13 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-const PETAL_COUNT = 900;
-const STREAK_COUNT = 24;
+/* PERF: reduced from 900 → 350 petals. Visually identical at a glance,
+   but ~60% less per-frame CPU on the geometry update loop. */
+const PETAL_COUNT = 350;
+const STREAK_COUNT = 12;
 
 function Petals({ burst }: { burst: boolean }) {
   const points = useRef<THREE.Points>(null);
@@ -117,17 +119,33 @@ interface ParticleSakuraProps {
   burst?: boolean;
 }
 
-/** 900 drifting sakura petals + light streaks. Desktop/motion-only (parent-guarded). */
+/** Drifting sakura petals + light streaks. Desktop/motion-only (parent-guarded).
+ *  PERF: the render loop PAUSES when the hero scrolls out of view (frameloop
+ *  switches to "never"), so no GPU work happens while reading other sections. */
 export default function ParticleSakura({ burst = false }: ParticleSakuraProps) {
+  const [visible, setVisible] = useState(true);
+  const wrap = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
+    <div ref={wrap} className="absolute inset-0">
     <Canvas
       camera={{ position: [0, 0, 6], fov: 60 }}
-      dpr={[1, 1.75]}
+      dpr={[1, 1.5]}
+      frameloop={visible ? "always" : "never"}
       gl={{ antialias: false, alpha: true, powerPreference: "low-power" }}
       style={{ position: "absolute", inset: 0 }}
     >
       <Petals burst={burst} />
       <Streaks />
     </Canvas>
+    </div>
   );
 }

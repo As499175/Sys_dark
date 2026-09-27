@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
 import { Section } from "@/components/fx/Section";
 import { projects, type Project, type ProjectCategory } from "@/data/projects";
-import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
 type Filter = "All" | ProjectCategory;
@@ -52,28 +51,11 @@ function MeshThumb({ mesh, title }: { mesh: Project["mesh"]; title: string }) {
   );
 }
 
-/* 3D tilt card with moving specular highlight */
+/* Project card.
+   PERFORMANCE NOTE: the old per-mousemove 3D tilt + glare re-rendered the
+   card on every pointer frame. Replaced with a standard GPU-composited CSS
+   hover (lift + neon glow) handled entirely by the browser compositor. */
 function TiltCard({ project }: { project: Project }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduced = usePrefersReducedMotion();
-  const [style, setStyle] = useState<React.CSSProperties>({});
-  const [glare, setGlare] = useState({ x: 50, y: 50, o: 0 });
-
-  const onMove = (e: React.MouseEvent) => {
-    if (reduced || !ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width;
-    const py = (e.clientY - r.top) / r.height;
-    setStyle({
-      transform: `perspective(900px) rotateX(${(0.5 - py) * 12}deg) rotateY(${(px - 0.5) * 12}deg)`,
-      transition: "transform 0.08s linear",
-    });
-    setGlare({ x: px * 100, y: py * 100, o: 0.14 });
-  };
-  const onLeave = () => {
-    setStyle({ transform: "perspective(900px) rotateX(0deg) rotateY(0deg)", transition: "transform 0.5s ease" });
-    setGlare((g) => ({ ...g, o: 0 }));
-  };
 
   return (
     <motion.article
@@ -83,13 +65,9 @@ function TiltCard({ project }: { project: Project }) {
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "hud-frame group relative overflow-hidden border border-white/8 bg-ink",
+        "hud-frame card-hover group relative overflow-hidden border border-white/8 bg-ink",
         project.featured && "md:col-span-2",
       )}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={style}
-      ref={ref}
     >
       {/* thumbnail */}
       <div className={cn("relative w-full overflow-hidden", project.featured ? "aspect-[21/9]" : "aspect-[16/9]")}>
@@ -97,13 +75,12 @@ function TiltCard({ project }: { project: Project }) {
         <span className="absolute left-3 top-3 rounded-sm border border-cyan/50 bg-void/80 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-cyan backdrop-blur">
           {project.category} · {project.year}
         </span>
-        {/* specular highlight */}
+        {/* static sheen that brightens on hover (CSS-only, no JS) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           style={{
-            opacity: glare.o,
-            background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, #ffffff 0%, transparent 55%)`,
+            background: "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
           }}
         />
       </div>

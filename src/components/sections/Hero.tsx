@@ -7,7 +7,6 @@ import { ChevronDown, Download, Mail } from "lucide-react";
 import { GlitchText } from "@/components/fx/GlitchText";
 import { TypingTerminal } from "@/components/fx/TypingTerminal";
 import { MagneticButton } from "@/components/fx/MagneticButton";
-import { useMousePosition } from "@/hooks/useMousePosition";
 import { usePrefersReducedMotion, useIsMobile } from "@/hooks/useMediaQuery";
 import { useCountUp } from "@/hooks/useCountUp";
 import { profile } from "@/data/profile";
@@ -56,14 +55,14 @@ function Stat({ label, value, suffix }: { label: string; value: number; suffix: 
 }
 
 export function Hero({ sakuraOn, burstKey, langBn }: HeroProps) {
-  const mouse = useMousePosition();
   const reduced = usePrefersReducedMotion();
   const isMobile = useIsMobile();
   const heavyFx = !reduced && !isMobile;
 
-  /* Mouse parallax offsets — max 12px per spec. */
-  const px = reduced ? 0 : mouse.nx * 12;
-  const py = reduced ? 0 : mouse.ny * 12;
+  /* NOTE: mouse-move parallax was intentionally REMOVED for performance —
+     it re-rendered the whole hero on every pointer frame. The hero now uses
+     gentle, GPU-cheap CSS float/drift animations that match the cyberpunk
+     mood without taxing the main thread. */
 
   const roles = useMemo(() => [...profile.roles], []);
 
@@ -74,12 +73,12 @@ export function Hero({ sakuraOn, burstKey, langBn }: HeroProps) {
         {/* CSS gradient fallback — always present beneath the canvas */}
         <div className="hero-gradient absolute inset-0" />
         {heavyFx && sakuraOn && (
-          <div className="absolute inset-0" style={{ transform: `translate3d(${px * 0.4}px, ${py * 0.4}px, 0)` }}>
+          <div className="absolute inset-0">
             <ParticleSakura key={burstKey} burst={burstKey > 0} />
           </div>
         )}
         {heavyFx && (
-          <div className="absolute right-[-10%] top-[10%] h-[70vh] w-[55vw]" style={{ transform: `translate3d(${px}px, ${py}px, 0)` }}>
+          <div className="absolute right-[-10%] top-[10%] h-[70vh] w-[55vw]">
             <HeroSphere />
           </div>
         )}
@@ -204,7 +203,6 @@ export function Hero({ sakuraOn, burstKey, langBn }: HeroProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
-            style={{ transform: `translate3d(${-px * 0.5}px, ${-py * 0.5}px, 0)` }}
           >
             {/* hexagon frame with animated conic border */}
             <div className="hex-portrait relative mx-auto aspect-[0.88] w-72">
