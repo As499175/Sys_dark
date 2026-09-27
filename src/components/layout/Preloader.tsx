@@ -81,7 +81,8 @@ export function Preloader({ onDone }: PreloaderProps) {
           initial={{ opacity: 1 }}
           exit={{ y: "-100%" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          aria-hidden="true"
+          role="status"
+          aria-label="Loading site"
         >
           <p className="font-mono text-xs tracking-[0.3em] text-cyan">
             {typed}

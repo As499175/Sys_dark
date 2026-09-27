@@ -31,9 +31,11 @@ interface CommandPaletteProps {
   onClose: () => void;
   onToggleSakura: () => void;
   sakuraOn: boolean;
+  /** Konami easter-egg theme toggle — keeps state in page.tsx (single source). */
+  onToggleGodMode: () => void;
 }
 
-export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn }: CommandPaletteProps) {
+export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn, onToggleGodMode }: CommandPaletteProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [sel, setSel] = useState(0);
@@ -64,11 +66,11 @@ export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn }: Comm
       },
       { id: "download-cv", label: "Download CV", hint: profile.resumeUrl, run: () => router.push(profile.resumeUrl) },
       { id: "toggle-sakura", label: `${sakuraOn ? "Disable" : "Enable"} sakura particles`, hint: "fx", run: onToggleSakura },
-      { id: "god-mode", label: "Toggle GOD MODE theme", hint: "easter egg", run: () => document.documentElement.classList.toggle("god-mode") },
+      { id: "god-mode", label: "Toggle GOD MODE theme", hint: "easter egg", run: onToggleGodMode },
       { id: "top", label: "Scroll to top", hint: "home", run: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
     ];
     return [...sections, ...projs, ...actions];
-  }, [onToggleSakura, sakuraOn, router]);
+  }, [onToggleSakura, sakuraOn, onToggleGodMode, router]);
 
   const filtered = useMemo(() => commands.filter((c) => fuzzy(query, c.label)), [commands, query]);
 

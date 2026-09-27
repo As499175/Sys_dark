@@ -92,6 +92,14 @@ export default function Home() {
 
   const toggleSakura = useCallback(() => setSakuraOn((v) => !v), []);
   const toggleLang = useCallback(() => setLangBn((v) => !v), []);
+  const toggleGodMode = useCallback(() => setGodMode((v) => !v), []);
+
+  /* Sync GOD MODE onto <html> so Tailwind color utilities (which resolve
+     through --color-cyan defined in @theme → :root) re-theme globally. */
+  useEffect(() => {
+    document.documentElement.classList.toggle("god-mode", godMode);
+    return () => document.documentElement.classList.remove("god-mode");
+  }, [godMode]);
 
   return (
     <>
@@ -126,6 +134,7 @@ export default function Home() {
           onClose={() => setPaletteOpen(false)}
           sakuraOn={sakuraOn}
           onToggleSakura={toggleSakura}
+          onToggleGodMode={toggleGodMode}
         />
 
         <main id="main">

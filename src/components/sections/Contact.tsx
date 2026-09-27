@@ -120,6 +120,8 @@ export function Contact() {
         setState("sent");
         formRef.current?.reset();
         setValues({ name: "", email: "", subject: "", message: "" });
+        // Let the user edit & send again after the success morph has been visible.
+        window.setTimeout(() => setState((s) => (s === "sent" ? "idle" : s)), 5000);
       } else if (data.errors) {
         setErrors(data.errors);
       } else if (data.mailto) {
