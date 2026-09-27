@@ -171,7 +171,7 @@ export function Navbar({ onOpenPalette, langBn, onToggleLang }: NavbarProps) {
               サイバーセキュリティ
             </span>
             <div className="flex h-16 items-center justify-between px-5">
-              <span className="kicker">// NAVIGATE</span>
+              <span className="kicker">{"// NAVIGATE"}</span>
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}

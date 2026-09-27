@@ -29,7 +29,7 @@ export function Section({ id, kicker, kickerJp, title, children, className }: Se
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <p className="kicker mb-3">
-          // {kicker} {kickerJp ? <span className="jp">— {kickerJp}</span> : null}
+          {"// "}{kicker} {kickerJp ? <span className="jp">— {kickerJp}</span> : null}
         </p>
         <h2
           id={`${id}-title`}

@@ -500,3 +500,27 @@ body {
 .glitch:focus-visible .glitch-b {
   animation: glitch-b 0.5s steps(4) infinite;
 }
+
+/* Standalone .glitch element (e.g. 404 screen) — pseudo-element RGB split */
+.glitch {
+  position: relative;
+}
+.glitch[data-text]::before,
+.glitch[data-text]::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: inset(0 0 60% 0);
+}
+.glitch[data-text]::before {
+  color: #ff2d95;
+  transform: translate(-2px, -1px);
+  animation: glitch-a 2.4s steps(6) infinite;
+}
+.glitch[data-text]::after {
+  color: #00f0ff;
+  clip-path: inset(55% 0 0 0);
+  transform: translate(2px, 1px);
+  animation: glitch-b 3.1s steps(7) infinite;
+}

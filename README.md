@@ -34,11 +34,19 @@ Open **http://localhost:3000**.
 > Note: the first page load compiles the app (can take ~10-20 s on cold start);
 > subsequent loads are fast. If the port is busy: `npm run dev -- -p 3001`.
 
-If it fails to start, do a clean restart:
+If it fails to start (e.g. the Turbopack font-cache error
+`Module not found: @vercel/turbopack-next/internal/font/google/font`), do a
+clean restart — this works on **Windows and Linux/macOS** alike:
 
 ```bash
-rm -rf .next node_modules && npm install && npm run dev
+npm run clean                 # deletes .next / out / tsbuildinfo (cross-platform)
+# if still broken: delete node_modules manually (rd /s /q node_modules on Windows,
+# rm -rf node_modules on Linux) then:
+npm install && npm run dev
 ```
+
+> `npm run dev` and `npm run build` already run `scripts/clean.mjs` first, so a
+> stale `.next` cache can no longer break startup.
 
 ## Production build & preview
 

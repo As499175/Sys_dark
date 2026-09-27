@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { profile } from "@/data/profile";
 import { projects } from "@/data/projects";
@@ -33,6 +34,7 @@ interface CommandPaletteProps {
 }
 
 export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn }: CommandPaletteProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +51,7 @@ export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn }: Comm
       id: `proj-${p.slug}`,
       label: p.title,
       hint: `/projects/${p.slug}`,
-      run: () => (window.location.href = `/projects/${p.slug}`),
+      run: () => router.push(`/projects/${p.slug}`),
     }));
     const actions: Cmd[] = [
       {
@@ -60,13 +62,13 @@ export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn }: Comm
           navigator.clipboard?.writeText(profile.email).catch(() => {});
         },
       },
-      { id: "download-cv", label: "Download CV", hint: profile.resumeUrl, run: () => (window.location.href = profile.resumeUrl) },
+      { id: "download-cv", label: "Download CV", hint: profile.resumeUrl, run: () => router.push(profile.resumeUrl) },
       { id: "toggle-sakura", label: `${sakuraOn ? "Disable" : "Enable"} sakura particles`, hint: "fx", run: onToggleSakura },
       { id: "god-mode", label: "Toggle GOD MODE theme", hint: "easter egg", run: () => document.documentElement.classList.toggle("god-mode") },
       { id: "top", label: "Scroll to top", hint: "home", run: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
     ];
     return [...sections, ...projs, ...actions];
-  }, [onToggleSakura, sakuraOn]);
+  }, [onToggleSakura, sakuraOn, router]);
 
   const filtered = useMemo(() => commands.filter((c) => fuzzy(query, c.label)), [commands, query]);
 
@@ -130,7 +132,7 @@ export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn }: Comm
             </div>
             <ul ref={listRef} className="max-h-72 overflow-y-auto p-2" role="listbox" aria-label="Commands">
               {filtered.length === 0 && (
-                <li className="px-3 py-6 text-center font-mono text-xs text-muted">// no signal</li>
+                <li className="px-3 py-6 text-center font-mono text-xs text-muted">{"// no signal"}</li>
               )}
               {filtered.map((c, i) => (
                 <li key={c.id} role="option" aria-selected={i === sel}>
