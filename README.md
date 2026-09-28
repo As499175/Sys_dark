@@ -92,13 +92,43 @@ npm run lint
 npx tsc --noEmit
 ```
 
-## Deploy to Vercel
+## Free deployment
 
-1. Push this repo to GitHub.
-2. At [vercel.com/new](https://vercel.com/new) import the repo.
-3. Framework preset **Next.js** (auto-detected). Root dir `./`.
-4. Add env vars (`RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `NEXT_PUBLIC_SITE_URL`) under *Settings -> Environment Variables*.
-5. Deploy. Update `NEXT_PUBLIC_SITE_URL` + profile links afterwards to your final domain.
+### Option A — Vercel (recommended, 2 minutes, full features)
+
+1. Push this repo to GitHub:
+   ```bash
+   git init -b main            # skip if already a git repo
+   git add -A && git commit -m "portfolio: ashiq0x"
+   gh repo create ashiq0x --public --source=. --push   # or push via github.com UI
+   ```
+2. At [vercel.com/new](https://vercel.com/new) import the repo (free Hobby plan).
+3. Framework preset **Next.js** is auto-detected. Click **Deploy**.
+4. (Optional) Add env vars `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `NEXT_PUBLIC_SITE_URL`
+   under *Settings → Environment Variables* to enable real email sending from the form.
+5. Done — you get `https://<project>.vercel.app`. Point a custom domain there if you own one.
+
+### Option B — GitHub Pages (static only, also free)
+
+The contact form automatically falls back to a `mailto:` link on Pages
+(no server available), so nothing breaks. To publish:
+
+1. In `next.config.ts` set:
+   ```ts
+   const nextConfig: NextConfig = {
+     output: "export",
+     basePath: "/<your-repo-name>",
+     assetPrefix: "/<your-repo-name>",
+     images: { unoptimized: true },
+   };
+   ```
+2. `npm run build` → an `out/` folder appears.
+3. Publish it with `npx gh-pages -d out` (or a GitHub Action), and enable
+   *Settings → Pages → Deploy from branch → gh-pages / root*.
+4. Revert those config changes whenever you want the dynamic API again.
+
+> Tip: edit `src/data/profile.ts` first — name, email, socials, stats all read
+> from that single file. Components never hard-code personal data.
 
 ## Where to edit content
 

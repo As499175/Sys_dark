@@ -471,9 +471,11 @@ body {
 }
 
 /* God Mode theme (konami easter egg). Applied to <html> so Tailwind's
-   text-cyan / border-cyan utilities resolve through --color-cyan too. */
-.god-mode {
+   text-cyan / border-cyan utilities resolve through the *registered*
+   --color-* custom properties that compiled utilities reference via var(). */
+:root.god-mode {
   --color-cyan: #ffd166;
+  --color-violet: #ff9e40;
   filter: saturate(1.35) contrast(1.05);
 }
 

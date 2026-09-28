@@ -42,7 +42,12 @@ export const profile = {
       session: "2023–24",
     },
   ],
-  email: "ashiq0x@example.com", // TODO: replace with real public email
+  /*
+   * EDIT ME — put your REAL public email here (used by the contact page,
+   * mailto fallback, JSON-LD and the console banner). Everything on the
+   * site reads from this one file, so you never touch components.
+   */
+  email: "ashiq0x@example.com", // TODO: replace with your real email
   phone: "", // TODO: optional
   resumeUrl: "/cv.pdf", // TODO: drop a real CV PDF into /public as cv.pdf
   links: {
@@ -66,3 +71,23 @@ export const profile = {
 } as const;
 
 export type Profile = typeof profile;
+
+/* ------------------------------------------------------------------ */
+/*  DEPLOYMENT NOTES (GitHub Pages / Vercel / Netlify)                 */
+/* ------------------------------------------------------------------ */
+/* This site is designed to deploy FREE in two ways:
+ *
+ * 1) VERCEL (recommended — full features incl. /api/contact form):
+ *    - Push this repo to GitHub, import it at vercel.com → done.
+ *    - Set NEXT_PUBLIC_SITE_URL to your final URL for perfect SEO.
+ *
+ * 2) GITHUB PAGES (static only — no server, so the contact form
+ *    automatically falls back to a mailto: link; nothing breaks):
+ *    - In next.config.ts set:  basePath: "/<your-repo-name>", assetPrefix: "/<your-repo-name>"
+ *      and output: "export". Then run `npm run build` and publish the
+ *      `out/` folder via gh-pages (or Actions). Note: /api routes are
+ *      not available on Pages; the UI already handles that gracefully.
+ *
+ * Everything else (name, links, stats, projects, timeline) lives in
+ * src/data/*.ts — edit those files only. No component changes needed.
+ */
