@@ -1,0 +1,162 @@
+"use client";
+
+import { useState } from "react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
+
+import { Section } from "@/components/fx/Section";
+import { projects, type Project, type ProjectCategory } from "@/data/projects";
+import { cn } from "@/lib/utils";
+
+type Filter = "All" | ProjectCategory;
+const FILTERS: Filter[] = ["All", "AI", "Security", "Web"];
+
+/* lucide-react removed brand glyphs — small inline GitHub mark instead. */
+function GithubMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.02 1.75 2.68 1.24 3.34.95.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+    </svg>
+  );
+}
+
+
+/* Gradient-mesh thumbnail rendered as inline SVG (no image files needed).
+   TODO: swap for next/image screenshots once real assets exist. */
+function MeshThumb({ mesh, title }: { mesh: Project["mesh"]; title: string }) {
+  const id = title.replace(/\W/g, "");
+  return (
+    <svg viewBox="0 0 400 220" className="h-full w-full" role="img" aria-label={`Abstract gradient artwork for ${title}`}>
+      <defs>
+        <radialGradient id={`a${id}`} cx="20%" cy="30%" r="70%">
+          <stop offset="0%" stopColor={mesh[0]} stopOpacity="0.9" />
+          <stop offset="100%" stopColor={mesh[2]} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={`b${id}`} cx="80%" cy="70%" r="65%">
+          <stop offset="0%" stopColor={mesh[1]} stopOpacity="0.75" />
+          <stop offset="100%" stopColor={mesh[2]} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="400" height="220" fill={mesh[2]} />
+      <rect width="400" height="220" fill={`url(#a${id})`} />
+      <rect width="400" height="220" fill={`url(#b${id})`} />
+      {/* scan grid flourish */}
+      {Array.from({ length: 7 }).map((_, i) => (
+        <line key={i} x1="0" y1={i * 34} x2="400" y2={i * 34} stroke="#ffffff" strokeOpacity="0.05" />
+      ))}
+      <text x="16" y="204" fontFamily="monospace" fontSize="10" fill="#E8ECF8" opacity="0.5">
+        ~/projects/{title.toLowerCase().replace(/\s+/g, "-")}
+      </text>
+    </svg>
+  );
+}
+
+/* Project card.
+   PERFORMANCE NOTE: the old per-mousemove 3D tilt + glare re-rendered the
+   card on every pointer frame. Replaced with a standard GPU-composited CSS
+   hover (lift + neon glow) handled entirely by the browser compositor. */
+function TiltCard({ project }: { project: Project }) {
+
+  return (
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className={cn(
+        "hud-frame card-hover group relative overflow-hidden border border-white/8 bg-ink",
+        project.featured && "md:col-span-2",
+      )}
+    >
+      {/* thumbnail */}
+      <div className={cn("relative w-full overflow-hidden", project.featured ? "aspect-[21/9]" : "aspect-[16/9]")}>
+        <MeshThumb mesh={project.mesh} title={project.title} />
+        <span className="absolute left-3 top-3 rounded-sm border border-cyan/50 bg-void/80 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-cyan backdrop-blur">
+          {project.category} · {project.year}
+        </span>
+        {/* static sheen that brightens on hover (CSS-only, no JS) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background: "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
+          }}
+        />
+      </div>
+
+      <div className="p-5">
+        <h3 className="font-display text-base font-bold uppercase tracking-wide text-text">
+          <a href={`/projects/${project.slug}`} className="neon-link">
+            {project.title}
+          </a>
+        </h3>
+        <p className="mt-1.5 text-xs leading-relaxed text-muted">{project.impact}</p>
+        <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Tech stack">
+          {project.tech.slice(0, 5).map((t) => (
+            <li key={t} className="rounded-sm border border-white/10 bg-ink-2 px-1.5 py-0.5 font-mono text-[0.6rem] text-muted">
+              {t}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex items-center gap-4">
+          {project.github && (
+            <a href={project.github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-cyan" aria-label={`${project.title} source code on GitHub`}>
+              <GithubMark className="h-3.5 w-3.5" aria-hidden="true" /> Code
+            </a>
+          )}
+          {project.live ? (
+            <a href={project.live} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-mono text-[0.68rem] text-muted transition-colors hover:text-magenta" aria-label={`${project.title} live site`}>
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" /> Live
+            </a>
+          ) : null}
+          <a href={`/projects/${project.slug}`} className="ml-auto inline-flex items-center gap-1 font-mono text-[0.68rem] text-cyan transition-colors hover:text-glow">
+            Case study <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+const gridVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+export function Projects() {
+  const [filter, setFilter] = useState<Filter>("All");
+  const shown = filter === "All" ? projects : projects.filter((p) => p.category === filter);
+
+  return (
+    <Section id="projects" kicker="PROJECTS" kickerJp="作品集" title="Selected builds">
+      {/* filter tabs */}
+      <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="Project filters">
+        {FILTERS.map((f) => (
+          <button
+            key={f}
+            role="tab"
+            aria-selected={filter === f}
+            onClick={() => setFilter(f)}
+            className={cn(
+              "rounded-sm border px-4 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.2em] transition-all",
+              filter === f
+                ? "border-cyan bg-cyan/10 text-cyan shadow-glow-cyan"
+                : "border-white/10 bg-ink text-muted hover:border-cyan/40 hover:text-text",
+            )}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <motion.div layout variants={gridVariants} initial="hidden" animate="show" className="grid gap-6 md:grid-cols-2">
+        <AnimatePresence mode="popLayout">
+          {shown.map((p) => (
+            <TiltCard key={p.slug} project={p} />
+          ))}
+        </AnimatePresence>
+      </motion.div>
+    </Section>
+  );
+}

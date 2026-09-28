@@ -1,1 +1,152 @@
-# Sys_dark
+# ASHIQUR RAHMAN BHUIYAN — Portfolio (@ashiq0x)
+
+Anime-cyberpunk / neon-sakura single-page portfolio built with:
+
+- **Next.js 16** (App Router, `src/` directory) + **TypeScript (strict)**
+- **Tailwind CSS v4** (`@theme` tokens in `src/app/globals.css`)
+- **motion** (`motion/react`) for animation, **GSAP ScrollTrigger** for the pinned Journey timeline
+- **three.js** via `@react-three/fiber` + `drei` + `postprocessing` (sakura particles, hero sphere)
+- **Zod** contact-form validation + **Resend** email route (`/api/contact`, mailto fallback)
+
+---
+
+## Animation performance model (v2 — "standard & flexible")
+
+Heavy mouse-follow effects were removed from the default experience because
+they re-rendered components on every pointer frame and made loading feel slow:
+
+| Effect | Default | How to re-enable |
+|---|---|---|
+| Mouse-move hero parallax | ❌ removed | n/a (gentle CSS drift used instead) |
+| 3D tilt + glare on project cards | ❌ replaced by GPU CSS hover lift | n/a |
+| Custom HUD cursor (dot + ring) | ❌ off | `NEXT_PUBLIC_HUD_CURSOR=true` |
+| Magnetic CTA buttons | ❌ off | `NEXT_PUBLIC_MAGNETIC=true` |
+| Sakura particles + hero orb (WebGL) | ✅ desktop only, pauses when scrolled out of view, 350 petals | Ctrl/Cmd+K → "toggle sakura" |
+| Preloader | ≤1.2 s, sessionStorage-guarded, skipped on repeat visits | — |
+
+Below-the-fold sections use `content-visibility: auto`, so the browser skips
+layout/paint for them until you scroll near them. Everything still respects
+`prefers-reduced-motion`.
+
+---
+
+## Requirements
+
+- **Node.js 20.9+** (Node 20 LTS or Node 22 recommended — Next.js 16 does not run on Node 18)
+- npm 10+ (bundled with Node). Yarn/pnpm/bun also work.
+
+## Run locally (development)
+
+```bash
+# 1. install dependencies
+npm install
+
+# 2. (optional) configure the contact form — without these the form
+#    falls back to a mailto link, everything else still works
+cp .env.example .env.local   # then fill in values (or just skip)
+
+# 3. start the dev server
+npm run dev
+```
+
+Open **http://localhost:3000**.
+
+> Note: the first page load compiles the app (can take ~10-20 s on cold start);
+> subsequent loads are fast. If the port is busy: `npm run dev -- -p 3001`.
+
+If it fails to start (e.g. the Turbopack font-cache error
+`Module not found: @vercel/turbopack-next/internal/font/google/font`), do a
+clean restart — this works on **Windows and Linux/macOS** alike:
+
+```bash
+npm run clean                 # deletes .next / out / tsbuildinfo (cross-platform)
+# if still broken: delete node_modules manually (rd /s /q node_modules on Windows,
+# rm -rf node_modules on Linux) then:
+npm install && npm run dev
+```
+
+> `npm run dev` and `npm run build` already run `scripts/clean.mjs` first, so a
+> stale `.next` cache can no longer break startup.
+
+## Production build & preview
+
+```bash
+npm run build     # type-checks + builds optimized output
+npm start         # serves http://localhost:3000 from .next
+```
+
+## Environment variables (all optional)
+
+| Variable            | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `RESEND_API_KEY`    | Enables real email sending from `/api/contact` (resend.com)    |
+| `CONTACT_TO_EMAIL`  | Inbox that receives contact-form messages                      |
+| `NEXT_PUBLIC_SITE_URL` | Canonical URL used for SEO metadata / OG tags               |
+
+Without `RESEND_API_KEY` the contact form gracefully falls back to a `mailto:` link.
+
+## Quality checks
+
+```bash
+npm run lint
+npx tsc --noEmit
+```
+
+## Free deployment
+
+### Option A — Vercel (recommended, 2 minutes, full features)
+
+1. Push this repo to GitHub:
+   ```bash
+   git init -b main            # skip if already a git repo
+   git add -A && git commit -m "portfolio: ashiq0x"
+   gh repo create ashiq0x --public --source=. --push   # or push via github.com UI
+   ```
+2. At [vercel.com/new](https://vercel.com/new) import the repo (free Hobby plan).
+3. Framework preset **Next.js** is auto-detected. Click **Deploy**.
+4. (Optional) Add env vars `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `NEXT_PUBLIC_SITE_URL`
+   under *Settings → Environment Variables* to enable real email sending from the form.
+5. Done — you get `https://<project>.vercel.app`. Point a custom domain there if you own one.
+
+### Option B — GitHub Pages (static only, also free)
+
+The contact form automatically falls back to a `mailto:` link on Pages
+(no server available), so nothing breaks. To publish:
+
+1. In `next.config.ts` set:
+   ```ts
+   const nextConfig: NextConfig = {
+     output: "export",
+     basePath: "/<your-repo-name>",
+     assetPrefix: "/<your-repo-name>",
+     images: { unoptimized: true },
+   };
+   ```
+2. `npm run build` → an `out/` folder appears.
+3. Publish it with `npx gh-pages -d out` (or a GitHub Action), and enable
+   *Settings → Pages → Deploy from branch → gh-pages / root*.
+4. Revert those config changes whenever you want the dynamic API again.
+
+> Tip: edit `src/data/profile.ts` first — name, email, socials, stats all read
+> from that single file. Components never hard-code personal data.
+
+## Where to edit content
+
+All copy/data lives in typed files — single source of truth:
+
+- `src/data/profile.ts`      — name, roles, links, stats, socials
+- `src/data/projects.ts`     — project cards (marked `TODO:` placeholders)
+- `src/data/skills.ts`       — radar chart values + skill groups + toolbox
+- `src/data/timeline.ts`     — Journey entries (2022 → today + TODO slots)
+- `src/data/achievements.ts` — trophy case + certifications + testimonials
+
+Search the repo for `TODO:` to find every placeholder you must fill
+(real repos, bounty stats, CTF ranks, cert IDs, CV file in `public/cv.pdf`).
+
+## Easter eggs
+
+- `Ctrl/Cmd + K` — command palette
+- Konami code (up up down down left right left right B A) — GOD MODE
+- Type `flag` in the About terminal — CTF flag
+
+© Ashiqur Rahman Bhuiyan · Built with Next.js, Motion & Three.js · Designed in the dark
