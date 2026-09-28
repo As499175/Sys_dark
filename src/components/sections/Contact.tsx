@@ -136,9 +136,19 @@ export function Contact() {
         setErrors(data.errors);
         setState("idle");
       } else if (data.mailto) {
-        // No RESEND_API_KEY configured → open the visitor's mail client.
+        /* No RESEND_API_KEY configured → hand off to the visitor's mail app.
+           Use an anchor click instead of location.href: assigning a mailto:
+           URL can trigger a "leaving site" prompt in some browsers and, on
+           iOS Safari, briefly blanks the page. A synthetic <a> click is the
+           standard safe way to launch the default mail client. */
         setState("idle");
-        window.location.href = data.mailto;
+        const a = document.createElement("a");
+        a.href = data.mailto;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setErrors({ form: "Opening your mail app — if nothing happens, email me directly." });
       } else {
         setErrors({ form: "Transmission failed. Try email directly." });
         setState("idle");

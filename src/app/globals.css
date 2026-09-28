@@ -143,6 +143,12 @@ html {
   color-scheme: dark;
 }
 
+/* Anchor targets must clear the fixed 64px navbar when using #hash links. */
+section[id],
+div[id="main"] {
+  scroll-margin-top: 5rem;
+}
+
 body {
   background: var(--color-void);
   color: var(--color-text);
