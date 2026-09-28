@@ -10,7 +10,7 @@ export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
-export const dynamicParams = true;
+export const dynamicParams = process.env.NEXT_OUTPUT === "export" ? false : true;
 
 export async function generateMetadata({
   params,

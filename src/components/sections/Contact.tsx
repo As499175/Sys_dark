@@ -119,14 +119,47 @@ export function Contact() {
     if (Object.keys(next).length > 0) return;
 
     setState("sending");
+
+    /* Shared mailto hand-off: used when the API has no RESEND_API_KEY *and*
+       when there is no API at all (static export on GitHub Pages).
+       Use an anchor click instead of location.href: assigning a mailto:
+       URL can trigger a "leaving site" prompt in some browsers and, on
+       iOS Safari, briefly blanks the page. A synthetic <a> click is the
+       standard safe way to launch the default mail client. */
+    const openMailApp = () => {
+      const a = document.createElement("a");
+      a.href = `mailto:${profile.email}?subject=${encodeURIComponent(`[Portfolio] ${values.subject}`)}&body=${encodeURIComponent(`${values.message}\n\n— ${values.name} <${values.email}>`)}`;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setState("idle");
+      setErrors({ form: "Opening your mail app — if nothing happens, email me directly." });
+    };
+
+    /* Static export (GitHub Pages / Netlify): /api/contact does not exist.
+       POSTing to it returns the HTML 404 page, so detect that before parsing
+       and fall straight back to the visitor's mail client. */
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+    if (!process.env.NEXT_PUBLIC_HAS_API) {
+      openMailApp();
+      return;
+    }
+
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(`${basePath}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
+      const ct = res.headers.get("content-type") ?? "";
+      if (!res.ok || !ct.includes("json")) {
+        // Server present but endpoint unavailable/misbehaving → mailto fallback.
+        openMailApp();
+        return;
+      }
       const data = (await res.json()) as { ok: boolean; errors?: Errors; mailto?: string };
-      if (res.ok && data.ok) {
+      if (data.ok) {
         setState("sent");
         formRef.current?.reset();
         setValues({ name: "", email: "", subject: "", message: "" });
@@ -136,18 +169,14 @@ export function Contact() {
         setErrors(data.errors);
         setState("idle");
       } else if (data.mailto) {
-        /* No RESEND_API_KEY configured → hand off to the visitor's mail app.
-           Use an anchor click instead of location.href: assigning a mailto:
-           URL can trigger a "leaving site" prompt in some browsers and, on
-           iOS Safari, briefly blanks the page. A synthetic <a> click is the
-           standard safe way to launch the default mail client. */
-        setState("idle");
+        // No RESEND_API_KEY configured → hand off to the visitor's mail app.
         const a = document.createElement("a");
         a.href = data.mailto;
         a.rel = "noopener";
         document.body.appendChild(a);
         a.click();
         a.remove();
+        setState("idle");
         setErrors({ form: "Opening your mail app — if nothing happens, email me directly." });
       } else {
         setErrors({ form: "Transmission failed. Try email directly." });

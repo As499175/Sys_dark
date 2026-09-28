@@ -1,5 +1,9 @@
 import { ImageResponse } from "next/og"; // Edge-compatible OG image (works on Vercel + `next start`)
 
+/* Required for `output: "export"` (GitHub Pages static builds): render once
+   at build time instead of on-demand. Harmless in server mode. */
+export const dynamic = "force-static";
+
 export const alt = "Ashiqur Rahman Bhuiyan — AI & Cyber Security portfolio";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

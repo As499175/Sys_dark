@@ -43,11 +43,23 @@ export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn, onTogg
   const listRef = useRef<HTMLUListElement>(null);
 
   const commands = useMemo<Cmd[]>(() => {
-    const sections = ["About", "Skills", "Projects", "Journey", "Achievements", "Bounty", "Certifications", "Contact"].map((s) => ({
-      id: `nav-${s}`,
-      label: `Go to ${s}`,
-      hint: `#${s.toLowerCase()}`,
-      run: () => document.getElementById(s.toLowerCase() === "bounty" ? "bounty" : s.toLowerCase())?.scrollIntoView({ behavior: "smooth" }),
+    // NOTE: section ids must match <Section id="..."> in each component (e.g. Certifications uses "certs").
+    const sections = [
+      { name: "About", anchor: "about" },
+      { name: "Skills", anchor: "skills" },
+      { name: "Arsenal", anchor: "arsenal" },
+      { name: "Projects", anchor: "projects" },
+      { name: "Journey", anchor: "journey" },
+      { name: "Achievements", anchor: "achievements" },
+      { name: "Bug Bounty", anchor: "bounty" },
+      { name: "Certifications", anchor: "certs" },
+      { name: "Testimonials", anchor: "testimonials" },
+      { name: "Contact", anchor: "contact" },
+    ].map((s) => ({
+      id: `nav-${s.anchor}`,
+      label: `Go to ${s.name}`,
+      hint: `#${s.anchor}`,
+      run: () => document.getElementById(s.anchor)?.scrollIntoView({ behavior: "smooth" }),
     }));
     const projs = projects.map((p) => ({
       id: `proj-${p.slug}`,

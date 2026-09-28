@@ -1,4 +1,7 @@
 import type { MetadataRoute } from "next";
+
+/* Static render — required for `output: "export"` (GitHub Pages). */
+export const dynamic = "force-static";
 import { projects } from "@/data/projects";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ashiq0x.vercel.app"; // TODO: set real URL
