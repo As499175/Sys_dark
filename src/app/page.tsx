@@ -48,6 +48,7 @@ export default function Home() {
   const [langBn, setLangBn] = useState(false);
   const [sakuraOn, setSakuraOn] = useState(true);
   const [burstKey, setBurstKey] = useState(0);
+  const [burstActive, setBurstActive] = useState(false);
   const [godMode, setGodMode] = useState(false);
   const [glitching, setGlitching] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -74,7 +75,10 @@ export default function Home() {
         if (idx === KONAMI.length) {
           idx = 0;
           setGodMode((v) => !v);
+          // one-shot sakura burst: reseed the petals, run fast for ~2.5s, settle back
           setBurstKey((k) => k + 1);
+          setBurstActive(true);
+          window.setTimeout(() => setBurstActive(false), 2500);
           setGlitching(true);
           window.setTimeout(() => setGlitching(false), 700);
         }
@@ -138,7 +142,7 @@ export default function Home() {
         />
 
         <main id="main">
-          <Hero sakuraOn={sakuraOn} burstKey={burstKey} langBn={langBn} />
+          <Hero sakuraOn={sakuraOn} burstKey={burstKey} burstActive={burstActive} langBn={langBn} />
           <About />
           <Skills />
           <Arsenal />

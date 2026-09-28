@@ -64,7 +64,8 @@ export function CommandPalette({ open, onClose, onToggleSakura, sakuraOn, onTogg
           navigator.clipboard?.writeText(profile.email).catch(() => {});
         },
       },
-      { id: "download-cv", label: "Download CV", hint: profile.resumeUrl, run: () => router.push(profile.resumeUrl) },
+      // Static asset: use window.location (router.push would try to client-render the PDF route).
+      { id: "download-cv", label: "Download CV", hint: profile.resumeUrl, run: () => window.open(profile.resumeUrl, "_blank", "noopener") },
       { id: "toggle-sakura", label: `${sakuraOn ? "Disable" : "Enable"} sakura particles`, hint: "fx", run: onToggleSakura },
       { id: "god-mode", label: "Toggle GOD MODE theme", hint: "easter egg", run: onToggleGodMode },
       { id: "top", label: "Scroll to top", hint: "home", run: () => window.scrollTo({ top: 0, behavior: "smooth" }) },

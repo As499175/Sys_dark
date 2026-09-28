@@ -98,7 +98,7 @@ function Field({
 export function Contact() {
   const [values, setValues] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState<Errors>({});
-  const [state, setState] = useState<"idle" | "sending" | "sent" | "mailto">("idle");
+  const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const formRef = useRef<HTMLFormElement>(null);
 
   const set = (k: keyof typeof values) => (v: string) => {
@@ -108,7 +108,17 @@ export function Contact() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setState("idle");
+    /* Client-side validation mirrors the Zod schema on the API so users get
+       instant inline feedback and we never spam the endpoint with bad data. */
+    const next: Errors = {};
+    if (values.name.trim().length < 2) next.name = "Name needs at least 2 characters";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email.trim())) next.email = "Enter a valid email address";
+    if (values.subject.trim().length < 3) next.subject = "Subject needs at least 3 characters";
+    if (values.message.trim().length < 10) next.message = "Message needs at least 10 characters";
+    setErrors(next);
+    if (Object.keys(next).length > 0) return;
+
+    setState("sending");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -124,15 +134,18 @@ export function Contact() {
         window.setTimeout(() => setState((s) => (s === "sent" ? "idle" : s)), 5000);
       } else if (data.errors) {
         setErrors(data.errors);
+        setState("idle");
       } else if (data.mailto) {
-        // server told us to fall back to mailto
-        setState("mailto");
+        // No RESEND_API_KEY configured → open the visitor's mail client.
+        setState("idle");
         window.location.href = data.mailto;
       } else {
         setErrors({ form: "Transmission failed. Try email directly." });
+        setState("idle");
       }
     } catch {
       setErrors({ form: "Network error — email me directly instead." });
+      setState("idle");
     }
   };
 
@@ -158,7 +171,7 @@ export function Contact() {
             ) : (
               <MagneticButton className="sweep w-full border border-cyan/60 px-8 py-3.5 font-mono text-xs uppercase tracking-[0.25em] text-cyan hover:text-void sm:w-auto">
                 <Send className="h-4 w-4" aria-hidden="true" />
-                {state === "sending" ? "Transmitting…" : state === "mailto" ? "Opening mail client…" : "Transmit"}
+                {state === "sending" ? "Transmitting…" : "Transmit"}
               </MagneticButton>
             )}
           </div>

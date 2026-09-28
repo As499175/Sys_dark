@@ -37,7 +37,10 @@ const H1_PATH =
 
 interface HeroProps {
   sakuraOn: boolean;
+  /** changing this value remounts the petal field (one-shot burst) */
   burstKey: number;
+  /** true while a burst is in flight — petals fall ~6× faster */
+  burstActive: boolean;
   langBn: boolean;
 }
 
@@ -54,7 +57,7 @@ function Stat({ label, value, suffix }: { label: string; value: number; suffix: 
   );
 }
 
-export function Hero({ sakuraOn, burstKey, langBn }: HeroProps) {
+export function Hero({ sakuraOn, burstKey, burstActive, langBn }: HeroProps) {
   const reduced = usePrefersReducedMotion();
   const isMobile = useIsMobile();
   const heavyFx = !reduced && !isMobile;
@@ -74,7 +77,7 @@ export function Hero({ sakuraOn, burstKey, langBn }: HeroProps) {
         <div className="hero-gradient absolute inset-0" />
         {heavyFx && sakuraOn && (
           <div className="absolute inset-0">
-            <ParticleSakura key={burstKey} burst={burstKey > 0} />
+            <ParticleSakura key={burstKey} burst={burstActive} />
           </div>
         )}
         {heavyFx && (
